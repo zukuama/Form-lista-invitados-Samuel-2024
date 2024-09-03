@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #969696;
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            line-height: 1.5;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        :root {
+            --shadow: 0 .5rem 1rem rgba(0, 0, 0, .05);
+            --blue: #0D99FF;
+            --blue-light: #CFEBFF;
+            --blue-dark: #0A7ACC;
+            --rounded: .25rem;
+            --rounded-md: .5rem;
+        }
+
+        .contact {
+            background-color: #cdcdcd;
+            max-width: 640px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            border-radius: var(--rounded-md);
+            position: relative;
+            /* Necesario para el posicionamiento del mensaje */
+        }
+
+        .contact-title {
+            font-size: 2rem;
+            margin-bottom: .5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: .75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+            border-radius: var(--rounded);
+            border: 1px solid #bbb;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 .25rem var(--blue-light);
+        }
+
+        label {
+            margin-bottom: .25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-submit {
+            padding: 1rem 6rem;
+            cursor: pointer;
+            border-radius: var(--rounded);
+            background-color: var(--blue);
+            color: #fff;
+            border: none;
+            outline: none;
+            font-size: 2rem;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--blue-dark);
+        }
+
+        .btn-submit:focus,
+        .btn-submit:active {
+            box-shadow: 0 0 0 .25rem var(--blue-light);
+        }
+
+        .message-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: var(--rounded-md);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: none;
+        }
+
+        .message-success {
+            color: green;
+        }
+
+        .message-error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Formulario de Registro de Invitados</h2>
+        <form id="registroForm">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="acompanado">¿Vas acompañado de alguien?</label>
+                <input type="text" id="acompanado" name="acompanado" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="total">¿Son en total?</label>
+                <input type="number" id="total" name="total" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+
+        <div id="messageContainer" class="message-container">
+            <div id="messageText"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registroForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = {
+                nombre: document.getElementById('nombre').value,
+                acompanado: document.getElementById('acompanado').value,
+                total: document.getElementById('total').value
+            };
+
+            fetch('https://script.google.com/macros/s/AKfycbxvB7fM6wIa33YsRmyBxFK9fvVNh58MtN1ziOuWKRAg_KTztbs3MivZdcnCAJ0zzup8pg/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    showMessage('Enviado exitosamente', 'success');
+                })
+                .catch(error => {
+                    showMessage('No se pudo enviar el formulario', 'error');
+                    console.error('Error al enviar el formulario:', error);
+                });
+        });
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageText = document.getElementById('messageText');
+
+            messageText.textContent = message;
+            messageContainer.className = `message-container message-${type}`;
+            messageContainer.style.display = 'block';
+
+            setTimeout(() => {
+                messageContainer.style.opacity = '0';
+                setTimeout(() => {
+                    messageContainer.style.display = 'none';
+                    messageContainer.style.opacity = '1';
+                    document.getElementById('registroForm').reset();
+                }, 500);
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>
+
+<!-- aca esta el codigo de apps script funional para este formulario
+function doPost(e) {
+    try {
+      const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('formulario');
+      
+      // Verifica si el contenido es JSON
+      const data = JSON.parse(e.postData.contents);
+  
+      const newRow = [
+        data.nombre,
+        data.acompanado,
+        data.total
+      ];
+  
+      sheet.appendRow(newRow);
+  
+      return ContentService.createTextOutput(JSON.stringify({ 'result': 'success' }))
+                           .setMimeType(ContentService.MimeType.JSON)
+                           .setHeader('Access-Control-Allow-Origin', '*')
+                           .setHeader('Access-Control-Allow-Methods', 'POST');
+    } catch (error) {
+      Logger.log(error.toString());
+      return ContentService.createTextOutput(JSON.stringify({ 'result': 'error', 'message': error.message }))
+                           .setMimeType(ContentService.MimeType.JSON)
+                           .setHeader('Access-Control-Allow-Origin', '*')
+                           .setHeader('Access-Control-Allow-Methods', 'POST');
+    }
+  } -->
